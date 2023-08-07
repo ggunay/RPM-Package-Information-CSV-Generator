@@ -1,19 +1,20 @@
 #!/bin/bash
 
-# RPM Package Information CSV Generator
-# Generates/overwrites out.csv
-# Usage: bash generate_csv.sh <inputpackage>
+# RPM Package Information CSV Generator for Executable Files
+# Usage: bash generate_csv.sh <inputfile> [outputfile]
+# Generates/overwrites the CSV file, default is out.csv
 # Author: Gunay Geyik 
 # github.com/ggunay
 
 # Check if the inputpackage argument is provided
-if [ $# -ne 1 ]; then
+if [ $# -lt 1 ]; then
   echo "Error: Please provide the 'inputpackage' file as an argument."
-  echo "Usage: bash generate_csv.sh <inputpackage>"
+  echo "Usage: bash generate_csv.sh <inputfile> [outputfile]"
   exit 1
 fi
 
 inputpackage=$1
+outputfile=${2:-out.csv}
 
 # Check if the inputpackage file exists
 if [ ! -f "$inputpackage" ]; then
@@ -22,8 +23,8 @@ if [ ! -f "$inputpackage" ]; then
   exit 1
 fi
 
-echo "Type,Datatable" > out.csv
-echo "file,package,name,version,release,license,packager,vendor,summary" >> out.csv
+echo "Type,Datatable" > $outputfile
+echo "file,package,name,version,release,license,packager,vendor,summary" >> $outputfile
 
 while read f; do
 readarray -t lines < <(rpm -qf $f | while read package; do  rpm -qi $package; done)
@@ -69,5 +70,5 @@ done
 
 str=$f","$package","$name","$version","$release","$license","$packager","$vendor","$summary
 echo "$str"
-echo $str >> out.csv
+echo $str >> $outputfile
 done <$inputpackage
